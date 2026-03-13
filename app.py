@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, Response
 import requests, os
 from datetime import datetime
 
@@ -98,6 +98,40 @@ def api_daily():
         "morning_spoken":  morning_spoken,
         "carplay_spoken":  carplay_spoken,
     })
+
+
+@app.route("/api/morning")
+def api_morning():
+    """Returns plain text for iPhone Shortcuts — just Speak Text, no JSON parsing needed"""
+    day     = datetime.now().timetuple().tm_yday
+    word    = WORDS[day % len(WORDS)]
+    weather = get_weather()
+    text = (
+        f"Good morning Minje. Today is {datetime.now().strftime('%A, %B %d')}. "
+        f"Toronto weather: {weather['temp']} degrees, {weather['desc']}. "
+        f"Word of the day: {word['word']}. Meaning: {word['meaning']}. "
+        f"Joe Rogan uses it like this: {word['joe_says']}. "
+        f"Try using it today: {word['use_it']}"
+    )
+    return Response(text, mimetype="text/plain")
+
+
+@app.route("/api/carplay")
+def api_carplay():
+    """Returns plain text for CarPlay Shortcuts"""
+    day     = datetime.now().timetuple().tm_yday
+    pattern = PATTERNS[day % len(PATTERNS)]
+    grammar = GRAMMAR[day % len(GRAMMAR)]
+    text = (
+        f"Hey Minje! English tip for your drive. "
+        f"Today's pattern: {pattern['pattern']}. "
+        f"Example: {pattern['example']}. "
+        f"Tip: {pattern['tip']}. "
+        f"Grammar: {grammar['tip']}. "
+        f"Correct version: {grammar['right']}. "
+        f"Have a great drive!"
+    )
+    return Response(text, mimetype="text/plain")
 
 
 if __name__ == "__main__":
