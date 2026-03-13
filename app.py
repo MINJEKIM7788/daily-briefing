@@ -1,0 +1,105 @@
+from flask import Flask, jsonify
+import requests, os
+from datetime import datetime
+
+app = Flask(__name__)
+
+WORDS = [
+    {"word":"fascinating","meaning":"Extremely interesting","joe_says":"The most fascinating thing about it is how nobody talks about it.","use_it":"That's a fascinating perspective — I hadn't thought of it that way."},
+    {"word":"legitimate","meaning":"Real, valid, genuinely serious","joe_says":"That's a legitimate concern and I think most people just ignore it.","use_it":"Do you think that's a legitimate reason or just an excuse?"},
+    {"word":"nuanced","meaning":"Having subtle differences; not black and white","joe_says":"It's a very nuanced situation and people want a simple answer.","use_it":"The reality is way more nuanced than the media makes it seem."},
+    {"word":"compelling","meaning":"Powerfully convincing or impossible to ignore","joe_says":"He made a really compelling argument that I couldn't disagree with.","use_it":"That's a compelling case — I need to look into that more."},
+    {"word":"simultaneously","meaning":"At the same time","joe_says":"You can simultaneously believe two things that seem contradictory.","use_it":"I was simultaneously impressed and terrified by what he said."},
+    {"word":"articulate","meaning":"Able to express ideas clearly and fluently","joe_says":"She's one of the most articulate people I've ever talked to.","use_it":"He's incredibly articulate — every word is exactly right."},
+    {"word":"genuinely","meaning":"Truly and sincerely, not fake","joe_says":"I genuinely believe most people are doing the best they can.","use_it":"I genuinely don't know how they pulled that off."},
+    {"word":"fundamentally","meaning":"At the most basic and important level","joe_says":"Fundamentally, the problem is that nobody wants to do the hard work.","use_it":"We fundamentally disagree on how to approach this."},
+    {"word":"resilient","meaning":"Able to recover quickly from difficulty","joe_says":"Humans are incredibly resilient — we adapt to almost anything.","use_it":"She's one of the most resilient people I know."},
+    {"word":"momentum","meaning":"The force that keeps something moving or growing","joe_says":"Once you build momentum it becomes almost impossible to stop.","use_it":"Don't break the momentum — keep going while it's working."},
+    {"word":"inevitable","meaning":"Certain to happen, impossible to avoid","joe_says":"At some point the shift was inevitable — it was just a matter of when.","use_it":"Conflict was inevitable given how different they are."},
+    {"word":"profound","meaning":"Very deep and meaningful","joe_says":"That's a profound statement and most people just brush past it.","use_it":"The impact of that decision was more profound than anyone expected."},
+    {"word":"deliberate","meaning":"Done on purpose; intentional and careful","joe_says":"Everything about that decision was deliberate — nothing was accidental.","use_it":"You have to be deliberate about how you spend your time."},
+    {"word":"narrative","meaning":"The story or version of events people believe","joe_says":"The mainstream narrative doesn't match what the data actually shows.","use_it":"They're trying to control the narrative before the truth comes out."},
+    {"word":"groundbreaking","meaning":"Innovative and completely new","joe_says":"That research was groundbreaking — nobody had even thought of it before.","use_it":"It's not groundbreaking but it's a solid improvement."},
+    {"word":"acknowledge","meaning":"To admit or recognize that something is true","joe_says":"You have to acknowledge that both sides have valid points.","use_it":"I want to acknowledge that I was wrong about that."},
+    {"word":"insane","meaning":"Unbelievably extreme (informal native use)","joe_says":"It's insane how much misinformation is just accepted as fact.","use_it":"The amount of work they put into that is absolutely insane."},
+    {"word":"wild","meaning":"Surprising, crazy, or hard to believe","joe_says":"It's kind of wild when you think about how recent all of this is.","use_it":"That's wild — I had no idea that was even possible."},
+    {"word":"brutal","meaning":"Very harsh, direct, or extreme","joe_says":"That's brutal honesty right there and I respect it.","use_it":"The feedback was brutal but exactly what I needed to hear."},
+    {"word":"perspective","meaning":"A particular way of thinking about something","joe_says":"It really shifts your perspective when you hear it from their side.","use_it":"From my perspective, the whole thing doesn't add up."},
+]
+
+PATTERNS = [
+    {"pattern":"Here's the thing about [topic]...","example":"Here's the thing about success — most people want it but don't want what it takes.","tip":"Use this to signal you're about to say something real and direct."},
+    {"pattern":"What's interesting is [observation]","example":"What's interesting is nobody actually talks about the cost of not trying.","tip":"Sounds thoughtful and analytical — very natural in conversation."},
+    {"pattern":"The reality is [truth]","example":"The reality is most people give up right before it starts working.","tip":"Sounds confident and grounded — great for professional settings."},
+    {"pattern":"I genuinely believe [opinion]","example":"I genuinely believe that consistency beats talent almost every time.","tip":"'Genuinely' makes it sound sincere, not just filler."},
+    {"pattern":"It's kind of wild when you think about [fact]","example":"It's kind of wild when you think about how fast everything is changing.","tip":"Very natural, casual, native — sounds like a real person talking."},
+    {"pattern":"At some point you have to [action]","example":"At some point you have to stop planning and just start doing.","tip":"Sounds wise and direct without being aggressive."},
+    {"pattern":"I'd argue [point]","example":"I'd argue this is the better approach and here's why.","tip":"Sounds educated and confident — great in debates and meetings."},
+    {"pattern":"That's one of those things where [situation]","example":"That's one of those things where you don't realize how important it is until it's gone.","tip":"Makes people nod — very relatable and conversational."},
+    {"pattern":"The most [adjective] part is [observation]","example":"The most underrated part is how much your environment shapes your habits.","tip":"Native speakers love this structure — direct and punchy."},
+    {"pattern":"You can't [action] without [other action]","example":"You can't expect different results without changing something fundamental.","tip":"Sounds logical and clear — great for making arguments."},
+]
+
+GRAMMAR = [
+    {"tip":"Drop 'very' — use a stronger word","wrong":"That was very good.","right":"That was exceptional / outstanding / remarkable.","why":"Native speakers replace 'very' with precise powerful adjectives."},
+    {"tip":"Use contractions naturally","wrong":"I am not sure that is the right answer.","right":"I'm not sure that's the right answer.","why":"Without contractions you sound like a textbook."},
+    {"tip":"Say 'That makes sense' not 'I understand'","wrong":"I understand what you mean.","right":"That makes sense. / That tracks.","why":"Native speakers confirm understanding with 'That makes sense'."},
+    {"tip":"Use 'I'd say' to give opinions smoothly","wrong":"In my opinion the deadline is too short.","right":"I'd say the deadline is a bit unrealistic honestly.","why":"'I'd say' is casual and native — 'in my opinion' sounds translated."},
+    {"tip":"Use 'Honestly' to add emphasis","wrong":"I really think we need to change the plan.","right":"Honestly, we need to rethink the whole plan.","why":"'Honestly' signals you're about to say something real — very native."},
+    {"tip":"Use 'end up' for unplanned results","wrong":"Finally I became the team leader.","right":"I ended up becoming the team leader.","why":"'End up' is extremely common in native speech for unexpected outcomes."},
+    {"tip":"Use 'I'd argue' to sound confident but not arrogant","wrong":"I think maybe possibly it could be better.","right":"I'd argue this is the better approach.","why":"Sounds educated and direct — used a lot in podcasts and debates."},
+    {"tip":"Use 'Though' at the end instead of 'But' at the start","wrong":"But I disagree with that approach.","right":"I disagree with that approach, though.","why":"'Though' at the END sounds more natural and native in casual speech."},
+]
+
+
+def get_weather():
+    try:
+        r = requests.get("https://wttr.in/Toronto?format=j1", timeout=5)
+        w = r.json()["current_condition"][0]
+        return {"temp": int(w["temp_C"]), "desc": w["weatherDesc"][0]["value"], "error": None}
+    except Exception as e:
+        return {"temp": 10, "desc": "Partly Cloudy", "error": str(e)}
+
+
+@app.route("/")
+def index():
+    return jsonify({"status": "Daily Briefing API is running", "endpoints": ["/api/daily"]})
+
+
+@app.route("/api/daily")
+def api_daily():
+    day     = datetime.now().timetuple().tm_yday
+    word    = WORDS[day % len(WORDS)]
+    pattern = PATTERNS[day % len(PATTERNS)]
+    grammar = GRAMMAR[day % len(GRAMMAR)]
+    weather = get_weather()
+
+    morning_spoken = (
+        f"Good morning Minje. Today is {datetime.now().strftime('%A, %B %d')}. "
+        f"Toronto weather: {weather['temp']} degrees, {weather['desc']}. "
+        f"Word of the day: {word['word']}. Meaning: {word['meaning']}. "
+        f"Joe Rogan uses it like this: {word['joe_says']}"
+    )
+    carplay_spoken = (
+        f"Hey Minje! English tip for your drive. "
+        f"Today's pattern: {pattern['pattern']}. "
+        f"Example: {pattern['example']}. "
+        f"Grammar tip: {grammar['tip']}. "
+        f"Correct version: {grammar['right']}. "
+        f"Have a great drive!"
+    )
+
+    return jsonify({
+        "date":            datetime.now().strftime("%A, %B %d"),
+        "weather":         weather,
+        "word":            word,
+        "pattern":         pattern,
+        "grammar":         grammar,
+        "morning_spoken":  morning_spoken,
+        "carplay_spoken":  carplay_spoken,
+    })
+
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5051))
+    app.run(host="0.0.0.0", port=port, debug=False)
