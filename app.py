@@ -52,6 +52,80 @@ GRAMMAR = [
 ]
 
 
+CEO_PLANS = [
+    {
+        "learn": "Read 10 pages of Zero to One by Peter Thiel — focus on what makes a startup monopoly.",
+        "followup": "Follow up with one person you met this week. Send a short message: what you learned from them.",
+        "routine": "No phone for the first 30 minutes after waking. Journal 3 things you want to accomplish today."
+    },
+    {
+        "learn": "Watch a 20-minute interview with a founder on YouTube — write down 1 thing they did differently.",
+        "followup": "Check your last 5 sent emails. Is there anyone waiting on you? Reply today.",
+        "routine": "Cold water on your face, 10 deep breaths, then read your top 3 goals out loud before touching your phone."
+    },
+    {
+        "learn": "Study one successful startup's early pitch deck — Airbnb, Uber, or Dropbox. What problem did they solve?",
+        "followup": "Message one mentor or person you admire. Ask one specific question, not just 'how are you'.",
+        "routine": "Write your MIT — Most Important Task — before breakfast. Do that first, everything else second."
+    },
+    {
+        "learn": "Learn what Product-Market Fit means. Look up how Slack, Notion, or Figma found theirs.",
+        "followup": "Review your LinkedIn connections. Find one person in your target industry to connect with today.",
+        "routine": "Spend 5 minutes standing outside in fresh air before sitting at your desk. CEOs call this a reset."
+    },
+    {
+        "learn": "Read a startup post-mortem — why did a company fail? Google 'startup failure post mortem'. Learn from it.",
+        "followup": "Send a thank you note to someone who helped you recently. Be specific about what they did.",
+        "routine": "Plan tomorrow the night before. Write 3 tasks before you sleep — wake up with a clear head."
+    },
+    {
+        "learn": "Study how successful CEOs price their product. Read about value-based pricing vs cost-based pricing.",
+        "followup": "Pick one idea you have and tell one real person about it today. Get their honest reaction.",
+        "routine": "Exercise for at least 20 minutes. Elon, Bezos, Jobs — all prioritized physical movement."
+    },
+    {
+        "learn": "Study the concept of customer discovery. How do you validate an idea before building it?",
+        "followup": "Review your week so far — what did you say you would do but haven't? Do one of those things today.",
+        "routine": "Eat a real breakfast with no screens. Your brain runs your business — fuel it properly."
+    },
+    {
+        "learn": "Research one local Toronto startup that got funded this year. What problem are they solving?",
+        "followup": "Send one cold email to someone you want to learn from. Keep it under 5 sentences.",
+        "routine": "Write down your long-term vision — where do you want to be in 3 years? Read it every morning."
+    },
+    {
+        "learn": "Learn the difference between B2B and B2C business models. Which fits your idea better and why?",
+        "followup": "Go back to a conversation you left incomplete. Finish it — follow-through is your reputation.",
+        "routine": "Set your phone to Do Not Disturb until 9 AM. Own your morning before the world takes it."
+    },
+    {
+        "learn": "Study how to write a one-pager for your business idea. Practice with any idea — real or hypothetical.",
+        "followup": "Check in on a classmate or friend working on something. Support builds your network.",
+        "routine": "Drink water before coffee. Spend 10 minutes reading something that has nothing to do with school."
+    },
+    {
+        "learn": "Learn about go-to-market strategy. How do startups get their first 100 customers?",
+        "followup": "Is there a project or commitment you've been avoiding? Send a quick update to whoever is waiting.",
+        "routine": "Make your bed. It is the first win of the day — it builds the discipline habit that CEOs live by."
+    },
+    {
+        "learn": "Study the lean startup method — Build, Measure, Learn. How does it apply to your own ideas?",
+        "followup": "Text someone you haven't spoken to in 2 weeks. Relationships are your most valuable asset.",
+        "routine": "Do a 5-minute brain dump — write everything on your mind. Clears the noise so you can focus."
+    },
+    {
+        "learn": "Research how startups raise a seed round. What do investors look for in a first meeting?",
+        "followup": "Review your goals from last week. Did you hit them? Be honest with yourself — no excuses.",
+        "routine": "Avoid checking social media until after your first task is complete. Protect your morning energy."
+    },
+    {
+        "learn": "Study one CEO's daily schedule — Jeff Bezos, Sara Blakely, or Jensen Huang. What patterns do you see?",
+        "followup": "Reconnect with a professor or advisor. Ask for one piece of advice on your current direction.",
+        "routine": "Spend 5 minutes before bed reviewing what went well today. Confidence is built from small wins."
+    },
+]
+
+
 def get_weather():
     try:
         r = requests.get("https://wttr.in/Toronto?format=j1", timeout=5)
@@ -106,12 +180,17 @@ def api_morning():
     day     = datetime.now().timetuple().tm_yday
     word    = WORDS[day % len(WORDS)]
     weather = get_weather()
+    plan    = CEO_PLANS[day % len(CEO_PLANS)]
     text = (
         f"Good morning Minje. Today is {datetime.now().strftime('%A, %B %d')}. "
         f"Toronto weather: {weather['temp']} degrees, {weather['desc']}. "
-        f"Word of the day: {word['word']}. Meaning: {word['meaning']}. "
+        f"Here are your 3 plans for today. "
+        f"Plan 1, Learn: {plan['learn']} "
+        f"Plan 2, Follow up: {plan['followup']} "
+        f"Plan 3, Morning routine: {plan['routine']} "
+        f"Word of the day: {word['word']}. {word['meaning']}. "
         f"Joe Rogan uses it like this: {word['joe_says']}. "
-        f"Try using it today: {word['use_it']}"
+        f"Now go make today count."
     )
     return Response(text, mimetype="text/plain")
 
