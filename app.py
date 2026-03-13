@@ -226,6 +226,66 @@ def api_morning():
     return Response(text, mimetype="text/plain")
 
 
+@app.route("/api/note")
+def api_note():
+    """Returns pretty formatted text for Notes app"""
+    day     = datetime.now().timetuple().tm_yday
+    word    = WORDS[day % len(WORDS)]
+    pattern = PATTERNS[day % len(PATTERNS)]
+    grammar = GRAMMAR[day % len(GRAMMAR)]
+    weather = get_weather()
+    plan    = CEO_PLANS[day % len(CEO_PLANS)]
+    date    = datetime.now().strftime("%A, %B %d")
+
+    text = f"""🌅 MORNING BRIEFING — {date}
+━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🌤 TORONTO WEATHER
+{weather['temp']}°C — {weather['desc']}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━
+🎯 YOUR 3 PLANS TODAY
+
+1️⃣  LEARN
+{plan['learn']}
+
+2️⃣  FOLLOW UP
+{plan['followup']}
+
+3️⃣  MORNING ROUTINE
+{plan['routine']}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━
+📖 WORD OF THE DAY
+
+"{word['word'].upper()}"
+→ {word['meaning']}
+
+Joe says:
+"{word['joe_says']}"
+
+Use it:
+"{word['use_it']}"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━
+🗣 TODAY'S ENGLISH PATTERN
+
+"{pattern['pattern']}"
+→ {pattern['example']}
+💡 {pattern['tip']}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━
+✏️ GRAMMAR TIP
+
+{grammar['tip']}
+❌ {grammar['wrong']}
+✅ {grammar['right']}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━
+Now go make today count. 💪"""
+    return Response(text, mimetype="text/plain")
+
+
 @app.route("/api/carplay")
 def api_carplay():
     """Returns plain text for CarPlay Shortcuts"""
