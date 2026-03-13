@@ -226,6 +226,97 @@ def api_morning():
     return Response(text, mimetype="text/plain")
 
 
+@app.route("/today")
+def today_page():
+    """Beautiful HTML daily note — shortcut just opens this URL"""
+    day     = datetime.now().timetuple().tm_yday
+    word    = WORDS[day % len(WORDS)]
+    pattern = PATTERNS[day % len(PATTERNS)]
+    grammar = GRAMMAR[day % len(GRAMMAR)]
+    weather = get_weather()
+    plan    = CEO_PLANS[day % len(CEO_PLANS)]
+    date    = datetime.now().strftime("%A, %B %d")
+
+    html = f"""<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Minje · {date}</title>
+<style>
+  * {{ box-sizing: border-box; margin: 0; padding: 0; }}
+  body {{ background: #0a0a0a; color: #f0f0f0; font-family: -apple-system, sans-serif;
+         padding: 20px 16px 60px; max-width: 480px; margin: 0 auto; }}
+  .date {{ font-size: 13px; color: #888; margin-bottom: 4px; letter-spacing: 1px; text-transform: uppercase; }}
+  .weather {{ font-size: 15px; color: #aaa; margin-bottom: 24px; }}
+  .section {{ background: #141414; border-radius: 16px; padding: 18px; margin-bottom: 14px; }}
+  .section-title {{ font-size: 11px; color: #888; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 14px; }}
+  .plan {{ display: flex; gap: 12px; margin-bottom: 14px; }}
+  .plan:last-child {{ margin-bottom: 0; }}
+  .plan-icon {{ font-size: 20px; flex-shrink: 0; margin-top: 1px; }}
+  .plan-label {{ font-size: 11px; color: #ff6b6b; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; }}
+  .plan-text {{ font-size: 15px; color: #e8e8e8; line-height: 1.5; }}
+  .word {{ font-size: 26px; font-weight: 700; color: #fff; margin-bottom: 4px; letter-spacing: 1px; }}
+  .meaning {{ font-size: 14px; color: #aaa; margin-bottom: 14px; }}
+  .quote {{ font-size: 14px; color: #e8e8e8; line-height: 1.6; border-left: 3px solid #ff6b6b; padding-left: 12px; margin-bottom: 10px; font-style: italic; }}
+  .use-it {{ font-size: 13px; color: #888; line-height: 1.5; }}
+  .pattern-text {{ font-size: 16px; font-weight: 600; color: #fff; margin-bottom: 8px; }}
+  .example {{ font-size: 14px; color: #aaa; line-height: 1.6; margin-bottom: 8px; font-style: italic; }}
+  .tip {{ font-size: 13px; color: #ff6b6b; }}
+  .grammar-tip {{ font-size: 14px; font-weight: 600; color: #fff; margin-bottom: 10px; }}
+  .wrong {{ font-size: 13px; color: #888; margin-bottom: 6px; }}
+  .right {{ font-size: 14px; color: #4cd964; font-weight: 500; }}
+  .footer {{ text-align: center; font-size: 14px; color: #555; margin-top: 24px; }}
+</style>
+</head>
+<body>
+  <div class="date">{date}</div>
+  <div class="weather">🌤 Toronto · {weather['temp']}°C · {weather['desc']}</div>
+
+  <div class="section">
+    <div class="section-title">🎯 Today's 3 Plans</div>
+    <div class="plan">
+      <div class="plan-icon">📚</div>
+      <div><div class="plan-label">Learn</div><div class="plan-text">{plan['learn']}</div></div>
+    </div>
+    <div class="plan">
+      <div class="plan-icon">📩</div>
+      <div><div class="plan-label">Follow Up</div><div class="plan-text">{plan['followup']}</div></div>
+    </div>
+    <div class="plan">
+      <div class="plan-icon">☀️</div>
+      <div><div class="plan-label">Routine</div><div class="plan-text">{plan['routine']}</div></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">📖 Word of the Day</div>
+    <div class="word">{word['word'].upper()}</div>
+    <div class="meaning">{word['meaning']}</div>
+    <div class="quote">"{word['joe_says']}"</div>
+    <div class="use-it">Try it → "{word['use_it']}"</div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">🗣 English Pattern</div>
+    <div class="pattern-text">"{pattern['pattern']}"</div>
+    <div class="example">"{pattern['example']}"</div>
+    <div class="tip">💡 {pattern['tip']}</div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">✏️ Grammar Tip</div>
+    <div class="grammar-tip">{grammar['tip']}</div>
+    <div class="wrong">❌ {grammar['wrong']}</div>
+    <div class="right">✅ {grammar['right']}</div>
+  </div>
+
+  <div class="footer">💪 Make today count.</div>
+</body>
+</html>"""
+    return Response(html, mimetype="text/html")
+
+
 @app.route("/api/note")
 def api_note():
     """Returns clean summarized note for Notes app"""
