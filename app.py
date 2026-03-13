@@ -228,7 +228,7 @@ def api_morning():
 
 @app.route("/api/note")
 def api_note():
-    """Returns pretty formatted text for Notes app"""
+    """Returns clean summarized note for Notes app"""
     day     = datetime.now().timetuple().tm_yday
     word    = WORDS[day % len(WORDS)]
     pattern = PATTERNS[day % len(PATTERNS)]
@@ -237,52 +237,35 @@ def api_note():
     plan    = CEO_PLANS[day % len(CEO_PLANS)]
     date    = datetime.now().strftime("%A, %B %d")
 
-    text = f"""🌅 MORNING BRIEFING — {date}
-━━━━━━━━━━━━━━━━━━━━━━━━━
+    text = f"""🌅 {date}
+🌤 Toronto {weather['temp']}°C · {weather['desc']}
 
-🌤 TORONTO WEATHER
-{weather['temp']}°C — {weather['desc']}
+─────────────────
+🎯 TODAY'S 3 PLANS
 
-━━━━━━━━━━━━━━━━━━━━━━━━━
-🎯 YOUR 3 PLANS TODAY
-
-1️⃣  LEARN
+✅ Learn
 {plan['learn']}
 
-2️⃣  FOLLOW UP
+✅ Follow Up
 {plan['followup']}
 
-3️⃣  MORNING ROUTINE
+✅ Routine
 {plan['routine']}
 
-━━━━━━━━━━━━━━━━━━━━━━━━━
-📖 WORD OF THE DAY
+─────────────────
+📖 Word: {word['word'].upper()}
+{word['meaning']}
+💬 "{word['use_it']}"
 
-"{word['word'].upper()}"
-→ {word['meaning']}
+─────────────────
+🗣 Pattern: {pattern['pattern']}
+→ "{pattern['example']}"
 
-Joe says:
-"{word['joe_says']}"
+✏️ Grammar: {grammar['tip']}
+✅ "{grammar['right']}"
 
-Use it:
-"{word['use_it']}"
-
-━━━━━━━━━━━━━━━━━━━━━━━━━
-🗣 TODAY'S ENGLISH PATTERN
-
-"{pattern['pattern']}"
-→ {pattern['example']}
-💡 {pattern['tip']}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━
-✏️ GRAMMAR TIP
-
-{grammar['tip']}
-❌ {grammar['wrong']}
-✅ {grammar['right']}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━
-Now go make today count. 💪"""
+─────────────────
+💪 Make today count."""
     return Response(text, mimetype="text/plain")
 
 
