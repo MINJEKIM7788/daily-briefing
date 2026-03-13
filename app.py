@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, Response
+from flask import Flask, jsonify, Response, send_from_directory
 import requests, os
 from datetime import datetime
 
@@ -137,7 +137,38 @@ def get_weather():
 
 @app.route("/")
 def index():
-    return jsonify({"status": "Daily Briefing API is running", "endpoints": ["/api/daily"]})
+    html = """<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Minje's Shortcuts</title>
+<style>
+  body { background:#000; color:#fff; font-family:-apple-system,sans-serif; text-align:center; padding:40px 20px; }
+  h1 { font-size:26px; margin-bottom:8px; }
+  p { color:#aaa; margin-bottom:40px; }
+  a.btn { display:block; background:#ff3b30; color:#fff; text-decoration:none;
+          padding:18px; border-radius:14px; font-size:18px; font-weight:600;
+          margin:16px auto; max-width:320px; }
+  a.btn.blue { background:#007aff; }
+  small { color:#555; font-size:13px; display:block; margin-top:32px; }
+</style>
+</head>
+<body>
+<h1>Minje's Daily Shortcuts</h1>
+<p>Open this page on iPhone Safari and tap to install</p>
+<a class="btn" href="/shortcuts/morning.shortcut">⬇️ Install Morning Briefing</a>
+<a class="btn blue" href="/shortcuts/carplay.shortcut">⬇️ Install CarPlay English</a>
+<small>daily-briefing-z4gw.onrender.com</small>
+</body>
+</html>"""
+    return Response(html, mimetype="text/html")
+
+
+@app.route("/shortcuts/<filename>")
+def serve_shortcut(filename):
+    return send_from_directory("static", filename,
+                               mimetype="application/x-apple-aspen-config",
+                               as_attachment=True)
 
 
 @app.route("/api/daily")
