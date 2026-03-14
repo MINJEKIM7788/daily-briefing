@@ -135,6 +135,295 @@ def get_weather():
         return {"temp": 10, "desc": "Partly Cloudy", "error": str(e)}
 
 
+@app.route("/guide")
+def guide():
+    html = """<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Minje's System — Manual</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #080808; color: #f0f0f0; font-family: -apple-system, sans-serif;
+       max-width: 680px; margin: 0 auto; padding: 32px 20px 80px; }
+.hero { text-align: center; padding: 40px 0 32px; }
+.hero h1 { font-size: 28px; font-weight: 800; margin-bottom: 8px; }
+.hero p { color: #666; font-size: 15px; }
+.badge { display: inline-block; background: #ff6b6b22; color: #ff9999;
+         font-size: 11px; font-weight: 700; letter-spacing: 1px;
+         padding: 3px 10px; border-radius: 20px; margin-bottom: 40px; }
+.section { margin-bottom: 12px; border-radius: 16px; overflow: hidden;
+           border: 1px solid #1a1a1a; }
+.section-header { background: #111; padding: 16px 20px; cursor: pointer;
+                  display: flex; justify-content: space-between; align-items: center; }
+.section-header h2 { font-size: 16px; font-weight: 700; }
+.section-header span { color: #555; font-size: 18px; }
+.section-body { background: #0d0d0d; padding: 0 20px; max-height: 0;
+                overflow: hidden; transition: max-height 0.3s ease, padding 0.3s; }
+.section-body.open { max-height: 2000px; padding: 20px; }
+.schedule { display: grid; gap: 8px; margin-bottom: 16px; }
+.time-block { display: flex; gap: 14px; align-items: flex-start;
+              background: #141414; padding: 12px 14px; border-radius: 10px; }
+.time { font-size: 12px; font-weight: 700; color: #ff9999;
+        min-width: 52px; margin-top: 2px; font-family: monospace; }
+.time-content h4 { font-size: 14px; font-weight: 600; margin-bottom: 3px; }
+.time-content p { font-size: 13px; color: #888; line-height: 1.5; }
+.steps { display: grid; gap: 8px; }
+.step { display: flex; gap: 14px; align-items: flex-start; padding: 10px 0;
+        border-bottom: 1px solid #1a1a1a; }
+.step:last-child { border-bottom: none; }
+.step-num { background: #ff6b6b22; color: #ff9999; font-size: 11px; font-weight: 800;
+            min-width: 24px; height: 24px; border-radius: 6px;
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.step-text h4 { font-size: 14px; font-weight: 600; margin-bottom: 3px; }
+.step-text p { font-size: 13px; color: #888; line-height: 1.5; }
+.tip-box { background: #0a1a0a; border: 1px solid #1a3a1a; border-radius: 10px;
+           padding: 14px; margin-top: 12px; }
+.tip-box p { font-size: 13px; color: #69f0ae; line-height: 1.6; }
+.url-box { background: #111; border-radius: 8px; padding: 10px 14px;
+           font-family: monospace; font-size: 13px; color: #4fc3f7;
+           margin: 8px 0; word-break: break-all; }
+.app-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+.app-card { background: #141414; border-radius: 12px; padding: 14px; }
+.app-card .icon { font-size: 24px; margin-bottom: 8px; }
+.app-card h4 { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+.app-card p { font-size: 12px; color: #666; line-height: 1.5; }
+.divider { height: 1px; background: #1a1a1a; margin: 16px 0; }
+h3 { font-size: 13px; font-weight: 700; color: #888; letter-spacing: 1px;
+     text-transform: uppercase; margin-bottom: 10px; }
+</style>
+</head>
+<body>
+<div class="hero">
+  <div style="font-size:40px; margin-bottom:12px">🚀</div>
+  <h1>Minje's CEO System</h1>
+  <p>Your complete manual — everything in one place</p>
+  <br>
+  <span class="badge">MINJE KIM · CEO MODE</span>
+</div>
+
+<!-- DAILY SCHEDULE -->
+<div class="section">
+  <div class="section-header" onclick="toggle(this)">
+    <h2>⏰ Daily Schedule — What to do & when</h2>
+    <span>+</span>
+  </div>
+  <div class="section-body">
+    <h3>Every Weekday</h3>
+    <div class="schedule">
+      <div class="time-block">
+        <div class="time">6:30 AM</div>
+        <div class="time-content">
+          <h4>Morning Briefing (Auto — cron job)</h4>
+          <p>Your Mac sends an iMessage + Discord with today's word of the day and morning briefing. You get it while waking up.</p>
+        </div>
+      </div>
+      <div class="time-block">
+        <div class="time">7:00 AM</div>
+        <div class="time-content">
+          <h4>Open Daily Page on iPhone</h4>
+          <p>Go to <b>daily-briefing-z4gw.onrender.com/today</b> in Safari. Read your 3 plans, word of the day, and grammar tip. Takes 2 minutes.</p>
+        </div>
+      </div>
+      <div class="time-block">
+        <div class="time">8:00 AM</div>
+        <div class="time-content">
+          <h4>Open HabitTracker on Mac</h4>
+          <p>Check off your morning routine habits. See your streak. This takes 30 seconds but builds discipline.</p>
+        </div>
+      </div>
+      <div class="time-block">
+        <div class="time">9:00 AM</div>
+        <div class="time-content">
+          <h4>Office English Session (Auto — cron job)</h4>
+          <p>Your Mac sends 3 sentence patterns + grammar tip to iMessage + Discord. Study it during your commute or first break.</p>
+        </div>
+      </div>
+      <div class="time-block">
+        <div class="time">During Day</div>
+        <div class="time-content">
+          <h4>Use today's word in a real conversation</h4>
+          <p>Try to say the word of the day at least once today. This is how vocabulary actually sticks.</p>
+        </div>
+      </div>
+      <div class="time-block">
+        <div class="time">9:00 PM</div>
+        <div class="time-content">
+          <h4>Evening Review (Auto — cron job)</h4>
+          <p>Cron sends you a quiz on today's word + grammar recap. Open HabitTracker, check off evening habits, see today's score.</p>
+        </div>
+      </div>
+      <div class="time-block">
+        <div class="time">10:00 PM</div>
+        <div class="time-content">
+          <h4>Plan tomorrow — write your MIT</h4>
+          <p>MIT = Most Important Task. Write one thing that MUST happen tomorrow. This runs your morning automatically.</p>
+        </div>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <h3>Weekend</h3>
+    <div class="schedule">
+      <div class="time-block">
+        <div class="time">Saturday</div>
+        <div class="time-content"><h4>Recharge + Explore + Reflect</h4><p>Open /today — it shows weekend-specific plans. No CEO grind. Rest is productive.</p></div>
+      </div>
+      <div class="time-block">
+        <div class="time">Sunday</div>
+        <div class="time-content"><h4>Prep + Learn + Connect</h4><p>Plan your week, deep-learn something, connect with someone important. Check HabitTracker weekly score.</p></div>
+      </div>
+      <div class="time-block">
+        <div class="time">Monday</div>
+        <div class="time-content"><h4>Weekly CEO Challenge drops</h4><p>Every Monday a new challenge appears at the top of /today. Complete it by Sunday.</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- APPS -->
+<div class="section">
+  <div class="section-header" onclick="toggle(this)">
+    <h2>📱 Your Apps — What each one does</h2>
+    <span>+</span>
+  </div>
+  <div class="section-body">
+    <div class="app-grid">
+      <div class="app-card"><div class="icon">📅</div><h4>Daily Briefing</h4><p>Opens in Safari on iPhone. Shows today's plans, word, pattern, grammar. Changes every day automatically.</p></div>
+      <div class="app-card"><div class="icon">✅</div><h4>HabitTracker</h4><p>macOS app. Check off 8 daily CEO habits. Tracks streaks, weekly score, and yearly heatmap.</p></div>
+      <div class="app-card"><div class="icon">👗</div><h4>Outfit Advisor</h4><p>Web app for your girlfriend. Opens on iPhone Safari, shows outfit suggestions based on Toronto weather.</p></div>
+      <div class="app-card"><div class="icon">📡</div><h4>SignalLab</h4><p>macOS engineering app. Signal generator, sampling demo, filter demo, live microphone FFT analysis.</p></div>
+    </div>
+    <div class="tip-box">
+      <p>💡 <b>HabitTracker + Daily Briefing work together.</b> The plans on /today match the habits in HabitTracker. Do the plans → check them off → watch your streak grow.</p>
+    </div>
+  </div>
+</div>
+
+<!-- URLS -->
+<div class="section">
+  <div class="section-header" onclick="toggle(this)">
+    <h2>🔗 All Your Links</h2>
+    <span>+</span>
+  </div>
+  <div class="section-body">
+    <h3>Daily Briefing Server</h3>
+    <div class="url-box">daily-briefing-z4gw.onrender.com/today</div>
+    <p style="font-size:13px;color:#666;margin-bottom:14px">→ Bookmark this to iPhone home screen. Open every morning.</p>
+    <div class="url-box">daily-briefing-z4gw.onrender.com/api/morning</div>
+    <p style="font-size:13px;color:#666;margin-bottom:14px">→ Plain text morning briefing for iPhone Shortcuts</p>
+    <div class="url-box">daily-briefing-z4gw.onrender.com/api/carplay</div>
+    <p style="font-size:13px;color:#666;margin-bottom:14px">→ CarPlay English tip for iPhone Shortcuts</p>
+    <div class="divider"></div>
+    <h3>Outfit Advisor</h3>
+    <div class="url-box">outfit-advisor.onrender.com</div>
+    <p style="font-size:13px;color:#666;margin-bottom:14px">→ Share this link with your girlfriend. Works on iPhone Safari.</p>
+    <div class="divider"></div>
+    <h3>Mac Apps (Desktop)</h3>
+    <div class="steps">
+      <div class="step"><div class="step-num">1</div><div class="step-text"><h4>HabitTracker.app</h4><p>Double-click from Desktop. Check habits daily.</p></div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-text"><h4>SignalLab.app</h4><p>Double-click from Desktop. For engineering signal work.</p></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- HABIT TRACKER GUIDE -->
+<div class="section">
+  <div class="section-header" onclick="toggle(this)">
+    <h2>✅ How to Use HabitTracker Effectively</h2>
+    <span>+</span>
+  </div>
+  <div class="section-body">
+    <div class="steps">
+      <div class="step"><div class="step-num">1</div><div class="step-text"><h4>Open every morning after breakfast</h4><p>Takes 30 seconds. Click the circle to check off what you've done. Green = done.</p></div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-text"><h4>Watch your 🔥 streak</h4><p>The fire emoji shows days in a row. Don't break the chain. Even 1 habit done keeps the streak alive.</p></div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-text"><h4>Check Stats every Sunday</h4><p>Click "Stats & Heatmap". Look at your week score grade. S = exceptional, A = great, B = good, C = needs work.</p></div></div>
+      <div class="step"><div class="step-num">4</div><div class="step-text"><h4>Export CSV for Google Sheets</h4><p>Click "Export CSV" → file saves to Desktop → drag it into your Google Sheet for backup.</p></div></div>
+      <div class="step"><div class="step-num">5</div><div class="step-text"><h4>Add custom habits with +</h4><p>Add anything specific to your current goals. Study for exam, work on side project, etc.</p></div></div>
+    </div>
+    <div class="tip-box">
+      <p>💡 <b>CEO insight:</b> Don't aim for 100% every day. Aim for 70%+ consistently. That beats 100% one day and 0% the next. Consistency > intensity.</p>
+    </div>
+  </div>
+</div>
+
+<!-- AUTOPILOT AGENT -->
+<div class="section">
+  <div class="section-header" onclick="toggle(this)">
+    <h2>🤖 Autopilot Agent — How it works</h2>
+    <span>+</span>
+  </div>
+  <div class="section-body">
+    <div class="steps">
+      <div class="step"><div class="step-num">1</div><div class="step-text"><h4>Your Mac must be on and awake</h4><p>The agent runs on cron jobs. If your Mac is sleeping or off, the message won't send that day.</p></div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-text"><h4>You receive 3 messages daily (weekdays)</h4><p>6:30 AM = Morning briefing + word of day. 9 AM = Sentence patterns + grammar. 9 PM = Evening review quiz.</p></div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-text"><h4>Messages go to iMessage + Discord</h4><p>Check your iMessage (+16475737482) or Discord. Both channels receive the same content.</p></div></div>
+      <div class="step"><div class="step-num">4</div><div class="step-text"><h4>To run it manually anytime</h4><p>Open Terminal → type: <code style="background:#1a1a1a;padding:2px 6px;border-radius:4px;color:#4fc3f7">python3 ~/Desktop/🤖\ AI\ \&\ Agents/autopilot-agent/agent.py morning</code></p></div></div>
+    </div>
+    <div class="tip-box">
+      <p>💡 The content rotates daily using day-of-year. After 20 days you'll have covered all vocabulary. After that it repeats — spaced repetition for learning.</p>
+    </div>
+  </div>
+</div>
+
+<!-- SIGNAL LAB -->
+<div class="section">
+  <div class="section-header" onclick="toggle(this)">
+    <h2>📡 SignalLab — Engineering Guide</h2>
+    <span>+</span>
+  </div>
+  <div class="section-body">
+    <div class="steps">
+      <div class="step"><div class="step-num">1</div><div class="step-text"><h4>Signal Generator mode</h4><p>Choose Sine/Square/Sawtooth/Triangle. Drag frequency and amplitude. Watch 6 graphs update live — time domain and frequency spectrum.</p></div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-text"><h4>Demonstrate Aliasing</h4><p>Set frequency to 50Hz. Drag Sample Rate below 100Hz. Red warning appears — ⚠ ALIASING. This is the Nyquist theorem in action.</p></div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-text"><h4>Test filters</h4><p>Switch to Low Pass. Drag Cutoff down. Watch high frequencies disappear in the filtered spectrum. Good for understanding DSP.</p></div></div>
+      <div class="step"><div class="step-num">4</div><div class="step-text"><h4>Live Mic mode</h4><p>Click "🎙 Live Mic" at the top. Allow microphone access. Speak or play music — watch your voice as a live waveform and FFT spectrum.</p></div></div>
+    </div>
+    <div class="tip-box">
+      <p>💡 <b>For McMaster engineering:</b> Use this to visualize concepts before exams — aliasing, filtering, Fourier transforms. Much easier to understand visually than in textbooks.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ENGLISH SYSTEM -->
+<div class="section">
+  <div class="section-header" onclick="toggle(this)">
+    <h2>🗣 English Learning System</h2>
+    <span>+</span>
+  </div>
+  <div class="section-body">
+    <div class="steps">
+      <div class="step"><div class="step-num">1</div><div class="step-text"><h4>Morning — Learn the word</h4><p>Read the word of the day in /today or from your iMessage. Say it out loud. Read Joe Rogan's example sentence.</p></div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-text"><h4>During the day — Use it once</h4><p>Find one natural moment to use the word in conversation or writing. This is the most important step.</p></div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-text"><h4>9 AM — Study the pattern</h4><p>The office session sends 3 sentence patterns. Pick one and use it in your next meeting, class, or conversation.</p></div></div>
+      <div class="step"><div class="step-num">4</div><div class="step-text"><h4>Evening — Self quiz</h4><p>When the 9 PM message arrives, try to write your own sentence with the word BEFORE reading the example.</p></div></div>
+    </div>
+    <div class="tip-box">
+      <p>💡 <b>The goal</b> is not to memorize. The goal is to use. One word used naturally is worth more than 10 words memorized and forgotten.</p>
+    </div>
+  </div>
+</div>
+
+<div style="text-align:center;margin-top:40px;color:#333;font-size:13px">
+  Built for Minje Kim · CEO Mode 2026 🚀
+</div>
+
+<script>
+function toggle(header) {
+  const body = header.nextElementSibling;
+  const icon = header.querySelector('span');
+  body.classList.toggle('open');
+  icon.textContent = body.classList.contains('open') ? '−' : '+';
+}
+// Open first section by default
+document.querySelector('.section-body').classList.add('open');
+document.querySelector('.section-header span').textContent = '−';
+</script>
+</body>
+</html>"""
+    return Response(html, mimetype="text/html")
+
+
 @app.route("/")
 def index():
     html = """<!DOCTYPE html>
