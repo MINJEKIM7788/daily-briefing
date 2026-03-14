@@ -467,6 +467,7 @@ def api_daily():
     pattern = PATTERNS[day % len(PATTERNS)]
     grammar = GRAMMAR[day % len(GRAMMAR)]
     weather = get_weather()
+    plan    = CEO_PLANS[day % len(CEO_PLANS)]
 
     morning_spoken = (
         f"Good morning Minje. Today is {datetime.now().strftime('%A, %B %d')}. "
@@ -489,6 +490,7 @@ def api_daily():
         "word":            word,
         "pattern":         pattern,
         "grammar":         grammar,
+        "plan":            plan,
         "morning_spoken":  morning_spoken,
         "carplay_spoken":  carplay_spoken,
     })
