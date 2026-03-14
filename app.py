@@ -226,16 +226,68 @@ def api_morning():
     return Response(text, mimetype="text/plain")
 
 
+WEEKEND_PLANS = [
+    {"sat": {"recharge": "Sleep in — no alarm. Your brain needs recovery to perform.", "explore": "Visit one new place in Toronto you've never been. CEOs stay curious.", "reflect": "Write 3 things that went well this week and 1 thing to improve next week."},
+     "sun": {"prep": "Plan your top 3 goals for the entire week ahead. Write them down.", "learn": "Watch a documentary or read about a company you admire. No school content.", "connect": "Have a real conversation with someone important to you — fully present, no phone."}},
+    {"sat": {"recharge": "Exercise outdoors for 30 minutes — walk, run, or stretch in fresh air.", "explore": "Go to a bookstore or library. Find one book about entrepreneurship or mindset.", "reflect": "Review your monthly goals — are you on track? Be brutally honest."},
+     "sun": {"prep": "Set up your workspace for the week — clean desk, clear mind, full focus.", "learn": "Listen to a long-form podcast with a founder or CEO. Take 3 notes.", "connect": "Call or message your parents or family. Relationships are your foundation."}},
+]
+
+WEEKLY_CHALLENGES = [
+    "Send a cold email to someone you admire in business. Just one. This week.",
+    "Build something small — an app, a document, a plan. Ship it by Friday.",
+    "Have 3 real conversations about your startup idea. Get honest feedback.",
+    "Cut one bad habit completely for 7 days. Track it daily.",
+    "Wake up at 6:30 AM every day this week. No exceptions.",
+    "Read 10 pages every single day this week. Log what you learned.",
+    "Send a follow-up to every important conversation you had last week.",
+    "Learn one new skill for 30 minutes a day. Document your progress.",
+]
+
 @app.route("/today")
 def today_page():
     """Beautiful HTML daily note — shortcut just opens this URL"""
-    day     = datetime.now().timetuple().tm_yday
+    now     = datetime.now()
+    day     = now.timetuple().tm_yday
+    weekday = now.weekday()  # 0=Mon, 6=Sun
+    is_weekend = weekday >= 5
     word    = WORDS[day % len(WORDS)]
-    pattern = PATTERNS[day % len(PATTERNS)]
-    grammar = GRAMMAR[day % len(GRAMMAR)]
-    weather = get_weather()
-    plan    = CEO_PLANS[day % len(CEO_PLANS)]
-    date    = datetime.now().strftime("%A, %B %d")
+    pattern      = PATTERNS[day % len(PATTERNS)]
+    grammar      = GRAMMAR[day % len(GRAMMAR)]
+    weather      = get_weather()
+    plan         = CEO_PLANS[day % len(CEO_PLANS)]
+    weekend      = WEEKEND_PLANS[(day // 7) % len(WEEKEND_PLANS)]
+    week_challenge = WEEKLY_CHALLENGES[(day // 7) % len(WEEKLY_CHALLENGES)]
+    date         = now.strftime("%A, %B %d")
+    is_monday    = weekday == 0
+
+    # Build plans section
+    if is_weekend and weekday == 5:
+        wp = weekend["sat"]
+        plans_html = f"""
+        <div class="plan"><div class="plan-icon">🔋</div><div><div class="plan-label">Recharge</div><div class="plan-text">{wp['recharge']}</div></div></div>
+        <div class="plan"><div class="plan-icon">🌆</div><div><div class="plan-label">Explore</div><div class="plan-text">{wp['explore']}</div></div></div>
+        <div class="plan"><div class="plan-icon">📝</div><div><div class="plan-label">Reflect</div><div class="plan-text">{wp['reflect']}</div></div></div>"""
+        plans_title = "🎉 SATURDAY — REST & RECHARGE"
+    elif is_weekend and weekday == 6:
+        wp = weekend["sun"]
+        plans_html = f"""
+        <div class="plan"><div class="plan-icon">📋</div><div><div class="plan-label">Prep Week</div><div class="plan-text">{wp['prep']}</div></div></div>
+        <div class="plan"><div class="plan-icon">📚</div><div><div class="plan-label">Learn</div><div class="plan-text">{wp['learn']}</div></div></div>
+        <div class="plan"><div class="plan-icon">❤️</div><div><div class="plan-label">Connect</div><div class="plan-text">{wp['connect']}</div></div></div>"""
+        plans_title = "☀️ SUNDAY — PREP & CONNECT"
+    else:
+        plans_html = f"""
+        <div class="plan"><div class="plan-icon">📚</div><div><div class="plan-label">Learn</div><div class="plan-text">{plan['learn']}</div></div></div>
+        <div class="plan"><div class="plan-icon">📩</div><div><div class="plan-label">Follow Up</div><div class="plan-text">{plan['followup']}</div></div></div>
+        <div class="plan"><div class="plan-icon">☀️</div><div><div class="plan-label">Routine</div><div class="plan-text">{plan['routine']}</div></div></div>"""
+        plans_title = "🎯 TODAY'S 3 PLANS"
+
+    weekly_section = f"""
+  <div class="section challenge">
+    <div class="section-title">⚡ THIS WEEK'S CEO CHALLENGE</div>
+    <div class="challenge-text">{week_challenge}</div>
+  </div>""" if is_monday else ""
 
     html = f"""<!DOCTYPE html>
 <html>
@@ -267,26 +319,19 @@ def today_page():
   .wrong {{ font-size: 13px; color: #888; margin-bottom: 6px; }}
   .right {{ font-size: 14px; color: #4cd964; font-weight: 500; }}
   .footer {{ text-align: center; font-size: 14px; color: #555; margin-top: 24px; }}
+  .challenge {{ border: 1px solid #ff6b6b33; background: #1a0a0a; }}
+  .challenge-text {{ font-size: 15px; color: #ff9999; font-weight: 500; line-height: 1.6; }}
+  .weekend-badge {{ display:inline-block; background:#ff6b6b22; color:#ff9999; font-size:11px;
+                    font-weight:700; letter-spacing:1px; padding:3px 8px; border-radius:6px; margin-bottom:10px; }}
 </style>
 </head>
 <body>
   <div class="date">{date}</div>
   <div class="weather">🌤 Toronto · {weather['temp']}°C · {weather['desc']}</div>
-
+  {weekly_section}
   <div class="section">
-    <div class="section-title">🎯 Today's 3 Plans</div>
-    <div class="plan">
-      <div class="plan-icon">📚</div>
-      <div><div class="plan-label">Learn</div><div class="plan-text">{plan['learn']}</div></div>
-    </div>
-    <div class="plan">
-      <div class="plan-icon">📩</div>
-      <div><div class="plan-label">Follow Up</div><div class="plan-text">{plan['followup']}</div></div>
-    </div>
-    <div class="plan">
-      <div class="plan-icon">☀️</div>
-      <div><div class="plan-label">Routine</div><div class="plan-text">{plan['routine']}</div></div>
-    </div>
+    <div class="section-title">{plans_title}</div>
+    {plans_html}
   </div>
 
   <div class="section">
